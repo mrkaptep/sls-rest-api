@@ -17,6 +17,7 @@ phases:
       - echo Deploying Resources
       - export AWS_ACCESS_KEY_ID=AKIATAUVIDFXCRCP2G67
       - export AWS_SECRET_ACCESS_KEY=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
+      - serverless deploy --stage dev 
       # - serverless deploy --stage dev --profile devopm
 artifacts:
   files:
