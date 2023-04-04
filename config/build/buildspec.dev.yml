@@ -1,0 +1,28 @@
+version: 0.2
+
+        
+phases:
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo Installing serverless CLI
+      - npm install -g serverless
+      - cd notes
+      - echo Installing npm dependencies of notes service
+      - npm i
+  build:
+    on-failure: ABORT
+    commands:
+      - echo Running Test
+      - npm test
+      - echo Packaging the service
+      - serverless package --package my-artifact --stage dev
+artifacts:
+  files:
+    - my-artifact/*
+  name: MyProjectArtifacts
+cache:
+  paths:
+    - 'notes/node_modules/**/*'
