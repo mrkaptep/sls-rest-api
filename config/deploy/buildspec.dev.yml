@@ -1,0 +1,27 @@
+version: 0.2
+
+        
+phases:
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo Installing serverless CLI
+      - npm install -g serverless
+      - echo Installing npm dependencies of notes service
+      - npm i
+  build:
+    on-failure: ABORT
+    commands:
+      - echo Deploying Resources
+      - export AWS_ACCESS_KEY_ID=AKIATAUVIDFXCRCP2G67
+      - export AWS_SECRET_ACCESS_KEY=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
+      - serverless deploy --stage dev
+artifacts:
+  files:
+    - my-artifact/*
+  name: MyProjectArtifacts
+cache:
+  paths:
+    - 'node_modules/**/*'
