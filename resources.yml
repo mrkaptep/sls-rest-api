@@ -1,0 +1,55 @@
+
+# CloudFormation template for a DynamoDB table named "notes"
+notesTable:
+  Type : AWS::DynamoDB::Table
+  Properties:
+    TableName: notes-${self:provider.stage}
+    # Set the billing mode to PAY_PER_REQUEST to save costs
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions: 
+        - AttributeName: notesId
+          AttributeType: S
+    KeySchema: 
+        - AttributeName: notesId
+          KeyType: HASH
+
+#Cognito user tool
+cognitoUserPool:
+  Type: AWS::Cognito::UserPool
+  Properties:
+    UserPoolName: MyNotesUP-${self:provider.stage}
+
+#User pool web client
+cognitoUserPoolWebClient:
+  Type: AWS::Cognito::UserPoolClient
+  Properties:
+    UserPoolId: !Ref cognitoUserPool
+    ClientName: web
+    AllowedOAuthFlowsUserPoolClient: true
+    SupportedIdentityProviders:
+      - COGNITO
+    AllowedOAuthScopes:
+      - phone
+      - email
+      - profile
+      - openid
+    AllowedOAuthFlows: 
+      - implicit
+    CallbackURLs:
+      - http://localhost:3000
+
+
+#User Pool Domain
+cognitoUserPoolDomain:
+  Type: AWS::Cognito::UserPoolDomain
+  Properties:
+    UserPoolId: !Ref cognitoUserPool
+    Domain: mynotesherecd-${self:provider.stage}
+
+#Applicaation paramarters
+userPoolArnParam: 
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: /notes/${self:provider.stage}/userPoolArn
+    Type: String
+    Value: !GetAtt cognitoUserPool.Arn

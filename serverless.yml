@@ -1,0 +1,119 @@
+service: notes
+configValidationMode: error
+frameworkVersion: '3'
+
+# Provider configuration for AWS Lambda
+provider:
+  name: aws
+  runtime: nodejs14.x
+  # sets default stage to dev
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+
+# Configuration for each Lambda function
+functions:
+  # Lambda function to authorize lambdas
+  authorizer:
+    handler: authorizer.handler
+    environment: 
+      COGNITO_USERPOOL_ID: !Ref cognitoUserPool
+      COGNITO_WEB_CLIENT_ID: !Ref cognitoUserPoolWebClient 
+
+  # Lambda function to create a new note
+  createNote:
+    handler: handler.createNote
+    environment:
+      # Set the name of the DynamoDB table using the "notesTable" CloudFormation resource
+      NOTES_TABLE_NAME: !Ref notesTable
+      # Environment variable to enable HTTP keep-alive connections in the AWS SDK for JavaScript
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    iamRoleStatements:
+      # Allow the Lambda function to put items in the DynamoDB table
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt notesTable.Arn
+    events:
+      # Set up an HTTP POST endpoint for the Lambda function
+      - http:
+          method: post
+          path: notes
+          authorizer: authorizer
+
+  # Lambda function to update an existing note
+  updateNote:
+    handler: handler.updateNote
+    environment:
+      # Set the name of the DynamoDB table using the "notesTable" CloudFormation resource
+      NOTES_TABLE_NAME: !Ref notesTable
+      # Environment variable to enable HTTP keep-alive connections in the AWS SDK for JavaScript
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    iamRoleStatements:
+      # Allow the Lambda function to update items in the DynamoDB table
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt notesTable.Arn
+    events:
+      # Set up an HTTP PUT endpoint for the Lambda function with a path parameter "id"
+      - http:
+          method: put
+          path: notes/{id}
+          authorizer: authorizer
+
+  # Lambda function to delete an existing note
+  deleteNote:
+    handler: handler.deleteNote
+    environment:
+      # Set the name of the DynamoDB table using the "notesTable" CloudFormation resource
+      NOTES_TABLE_NAME: !Ref notesTable
+      # Environment variable to enable HTTP keep-alive connections in the AWS SDK for JavaScript
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    iamRoleStatements:
+      # Allow the Lambda function to delete items from the DynamoDB table
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt notesTable.Arn
+    events:
+      # Set up an HTTP DELETE endpoint for the Lambda function with a path parameter "id"
+      - http:
+          method: delete
+          path: notes/{id}
+          authorizer: authorizer
+
+  # Lambda function to retrieve all notes from the DynamoDB table
+  getAllNotes:
+    handler: handler.getAllNotes
+    environment:
+      # Set the name of the DynamoDB table using the "notesTable" CloudFormation resource
+      NOTES_TABLE_NAME: !Ref notesTable
+      # Environment variable to enable HTTP keep-alive connections in the AWS SDK for JavaScript
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    iamRoleStatements:
+      # Allow the Lambda function to scan the DynamoDB table
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt notesTable.Arn
+    events:
+      # Set up an HTTP GET endpoint for the Lambda function
+      - http:
+          method: get
+          path: notes
+          authorizer:
+            name: userpool_authorizer
+            type: COGNITO_USER_POOLS
+            arn: !GetAtt cognitoUserPool.Arn
+            # arn: ${ssm:/notes/${self:provider.stage}/userPoolArn}
+
+# Plugins used by the Serverless Framework
+plugins:
+  # Plugin to generate IAM roles for each Lambda function
+  - serverless-iam-roles-per-function
+
+# CloudFormation resource templates
+resources:
+  Resources:
+    ${file(resources.yml)}
+    
