@@ -83,29 +83,29 @@ functions:
           authorizer: authorizer
 
   # Lambda function to retrieve all notes from the DynamoDB table
-  getAllNotes:
-    handler: handler.getAllNotes
-    environment:
-      # Set the name of the DynamoDB table using the "notesTable" CloudFormation resource
-      NOTES_TABLE_NAME: !Ref notesTable
-      # Environment variable to enable HTTP keep-alive connections in the AWS SDK for JavaScript
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    iamRoleStatements:
-      # Allow the Lambda function to scan the DynamoDB table
-      - Effect: Allow
-        Action:
-          - dynamodb:Scan
-        Resource: !GetAtt notesTable.Arn
-    events:
-      # Set up an HTTP GET endpoint for the Lambda function
-      - http:
-          method: get
-          path: notes
-          authorizer:
-            name: userpool_authorizer
-            type: COGNITO_USER_POOLS
-            arn: !GetAtt cognitoUserPool.Arn
-            # arn: ${ssm:/notes/${self:provider.stage}/userPoolArn}
+  # getAllNotes:
+  #   handler: handler.getAllNotes
+  #   environment:
+  #     # Set the name of the DynamoDB table using the "notesTable" CloudFormation resource
+  #     NOTES_TABLE_NAME: !Ref notesTable
+  #     # Environment variable to enable HTTP keep-alive connections in the AWS SDK for JavaScript
+  #     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+  #   iamRoleStatements:
+  #     # Allow the Lambda function to scan the DynamoDB table
+  #     - Effect: Allow
+  #       Action:
+  #         - dynamodb:Scan
+  #       Resource: !GetAtt notesTable.Arn
+  #   events:
+  #     # Set up an HTTP GET endpoint for the Lambda function
+  #     - http:
+  #         method: get
+  #         path: notes
+  #         authorizer:
+  #           name: userpool_authorizer
+  #           type: COGNITO_USER_POOLS
+  #           arn: !GetAtt cognitoUserPool.Arn
+  # #           # arn: ${ssm:/notes/${self:provider.stage}/userPoolArn}
 
 # Plugins used by the Serverless Framework
 plugins:

@@ -15,8 +15,8 @@ phases:
     on-failure: ABORT
     commands:
       - echo Deploying Resources
-      - serverless deploy --stage dev --aws-profile devopm
-      # - serverless deploy --stage dev --profile devopm
+      - serverless deploy --stage dev --aws-profile serverless-app
+
 artifacts:
   files:
     - my-artifact/*
