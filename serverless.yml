@@ -8,7 +8,7 @@ provider:
   runtime: nodejs14.x
   # sets default stage to dev
   stage: ${opt:stage, 'dev'}
-  profile: serverlessApp
+  # profile: serverlessApp
   region: us-east-1
 
 # Configuration for each Lambda function
