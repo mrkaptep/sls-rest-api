@@ -9,6 +9,7 @@ provider:
   # sets default stage to dev
   stage: ${opt:stage, 'dev'}
   region: us-east-1
+  #don't add profile or it will not deploy
 
 # Configuration for each Lambda function
 functions:
